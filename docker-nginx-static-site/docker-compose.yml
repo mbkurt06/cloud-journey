@@ -1,0 +1,13 @@
+# This file is named "docker-compose.yml" intentionally.
+# Docker Compose automatically detects this filename by default,
+# so there is no need to specify it manually when running commands.
+#
+# Example:
+#   docker compose up -d
+#
+# If a different filename is used (e.g., docker-compose.prod.yml),
+# it must be explicitly provided:
+#   docker compose -f docker-compose.prod.yml up -d
+#
+# Similar to how "Dockerfile" works as the default build file,
+# "docker-compose.yml" is the default for Docker Compose.

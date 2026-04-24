@@ -1,0 +1,7 @@
+services:
+  web-dev:
+    image: nginx:latest
+    ports:
+      - "8081:80"
+    volumes:
+      - ./nginx-site:/usr/share/nginx/html
