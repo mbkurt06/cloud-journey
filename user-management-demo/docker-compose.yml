@@ -1,0 +1,60 @@
+services:
+  nginx:
+    image: nginx:latest
+    container_name: user-demo-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./frontend:/usr/share/nginx/html
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - backend1
+      - backend2
+    networks:
+      - app-network
+
+  backend1:
+    build: ./backend
+    container_name: user-demo-backend-1
+    environment:
+      - INSTANCE_NAME=backend-1
+      - DB_HOST=db
+      - DB_NAME=userdemo
+      - DB_USER=userdemo
+      - DB_PASSWORD=userdemo
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  backend2:
+    build: ./backend
+    container_name: user-demo-backend-2
+    environment:
+      - INSTANCE_NAME=backend-2
+      - DB_HOST=db
+      - DB_NAME=userdemo
+      - DB_USER=userdemo
+      - DB_PASSWORD=userdemo
+    depends_on:
+      - db
+    networks:
+      - app-network
+
+  db:
+    image: postgres:16
+    container_name: user-demo-db
+    environment:
+      - POSTGRES_DB=userdemo
+      - POSTGRES_USER=userdemo
+      - POSTGRES_PASSWORD=userdemo
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    networks:
+      - app-network
+
+volumes:
+  postgres-data:
+
+networks:
+  app-network:
