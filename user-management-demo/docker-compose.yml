@@ -8,8 +8,10 @@ services:
       - ./frontend:/usr/share/nginx/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
     depends_on:
-      - backend1
-      - backend2
+      backend1:
+        condition: service_healthy
+      backend2:
+        condition: service_healthy
     networks:
       - app-network
 
@@ -23,7 +25,13 @@ services:
       - DB_USER=userdemo
       - DB_PASSWORD=userdemo
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - app-network
 
@@ -37,7 +45,13 @@ services:
       - DB_USER=userdemo
       - DB_PASSWORD=userdemo
     depends_on:
-      - db
+      db:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - app-network
 
@@ -50,6 +64,11 @@ services:
       - POSTGRES_PASSWORD=userdemo
     volumes:
       - postgres-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U userdemo -d userdemo"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
     networks:
       - app-network
 
