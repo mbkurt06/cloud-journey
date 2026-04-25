@@ -1,0 +1,60 @@
+services:
+  # Nginx is the public entry point for this logging demo.
+  loggingdemo_nginx_gateway:
+    image: nginx:latest
+    container_name: loggingdemo-nginx-gateway
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    depends_on:
+      - loggingdemo_backend_service
+    networks:
+      - loggingdemo-network
+
+  # Backend service that produces application logs.
+  loggingdemo_backend_service:
+    build: ./backend
+    container_name: loggingdemo-backend-service
+    environment:
+      - LOGGINGDEMO_SERVICE_NAME=backend-logging-service
+    networks:
+      - loggingdemo-network
+
+  # Loki log storage service
+  loggingdemo_loki:
+    image: grafana/loki:2.9.0
+    container_name: loggingdemo-loki
+    ports:
+      - "3100:3100"
+    volumes:
+      - ./loki/loki-config.yml:/etc/loki/config.yml
+    command: -config.file=/etc/loki/config.yml
+    networks:
+      - loggingdemo-network
+
+  # Promtail reads Docker container logs and sends them to Loki.
+  loggingdemo_promtail:
+    image: grafana/promtail:2.9.0
+    container_name: loggingdemo-promtail
+    volumes:
+      - ./promtail/promtail-config.yml:/etc/promtail/config.yml
+      - /var/run/docker.sock:/var/run/docker.sock
+      - /var/lib/docker/containers:/var/lib/docker/containers:ro
+    command: -config.file=/etc/promtail/config.yml
+    depends_on:
+      - loggingdemo_loki
+    networks:
+      - loggingdemo-network
+  # Grafana provides the web UI for querying and visualizing logs from Loki.
+  loggingdemo_grafana:
+    image: grafana/grafana:latest
+    container_name: loggingdemo-grafana
+    ports:
+      - "3000:3000"
+    depends_on:
+      - loggingdemo_loki
+    networks:
+      - loggingdemo-network
+networks:
+  loggingdemo-network:
