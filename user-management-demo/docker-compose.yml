@@ -1,79 +1,112 @@
 services:
+  # Nginx is the single public entry point for the application.
+  # It serves the frontend and forwards API requests to backend services.
   nginx:
     image: nginx:latest
     container_name: user-demo-nginx
+
+    # Exposes Nginx to the host machine.
+    # Host port 8080 -> Container port 80
     ports:
       - "8080:80"
+
+    # Mount frontend files and custom Nginx configuration into the container.
     volumes:
       - ./frontend:/usr/share/nginx/html
       - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+
+    # Nginx starts only after both backend services are healthy.
     depends_on:
       backend1:
         condition: service_healthy
       backend2:
         condition: service_healthy
+
     networks:
       - app-network
 
+  # First backend API instance.
   backend1:
     build: ./backend
     container_name: user-demo-backend-1
+
+    # Environment variables used by the backend application.
     environment:
       - INSTANCE_NAME=backend-1
       - DB_HOST=db
       - DB_NAME=userdemo
       - DB_USER=userdemo
       - DB_PASSWORD=userdemo
+
+    # Backend starts only after the database is healthy.
     depends_on:
       db:
         condition: service_healthy
+
+    # Checks whether the backend API is ready to receive traffic.
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
       interval: 5s
       timeout: 3s
       retries: 10
+
     networks:
       - app-network
 
+  # Second backend API instance used to demonstrate load balancing.
   backend2:
     build: ./backend
     container_name: user-demo-backend-2
+
     environment:
       - INSTANCE_NAME=backend-2
       - DB_HOST=db
       - DB_NAME=userdemo
       - DB_USER=userdemo
       - DB_PASSWORD=userdemo
+
     depends_on:
       db:
         condition: service_healthy
+
     healthcheck:
       test: ["CMD-SHELL", "python -c \"import urllib.request; urllib.request.urlopen('http://localhost:8000/api/v1/health')\""]
       interval: 5s
       timeout: 3s
       retries: 10
+
     networks:
       - app-network
 
+  # PostgreSQL database service.
   db:
     image: postgres:16
     container_name: user-demo-db
+
+    # PostgreSQL image uses these variables during initialization.
     environment:
       - POSTGRES_DB=userdemo
       - POSTGRES_USER=userdemo
       - POSTGRES_PASSWORD=userdemo
+
+    # Named volume keeps database data persistent even if the container is removed.
     volumes:
       - postgres-data:/var/lib/postgresql/data
+
+    # Checks whether PostgreSQL is ready to accept connections.
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U userdemo -d userdemo"]
       interval: 5s
       timeout: 3s
       retries: 10
+
     networks:
       - app-network
 
+# Persistent Docker volume for PostgreSQL data.
 volumes:
   postgres-data:
 
+# Shared Docker network for service-to-service communication.
 networks:
   app-network:

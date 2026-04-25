@@ -4,37 +4,43 @@ import psycopg2
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
 
-app = FastAPI()
+# FastAPI application instance
+fastapi_app = FastAPI()
 
-INSTANCE_NAME = os.getenv("INSTANCE_NAME", "backend")
+# Backend instance name (used to identify which container handled the request)
+BACKEND_INSTANCE_NAME = os.getenv("INSTANCE_NAME", "backend")
 
-DB_HOST = os.getenv("DB_HOST", "db")
-DB_NAME = os.getenv("DB_NAME", "userdemo")
-DB_USER = os.getenv("DB_USER", "userdemo")
-DB_PASSWORD = os.getenv("DB_PASSWORD", "userdemo")
+# Database configuration (loaded from environment variables)
+APP_DB_HOST = os.getenv("DB_HOST", "db")
+APP_DB_NAME = os.getenv("DB_NAME", "userdemo")
+APP_DB_USER = os.getenv("DB_USER", "userdemo")
+APP_DB_PASSWORD = os.getenv("DB_PASSWORD", "userdemo")
 
 
+# Request model for user creation
 class UserCreate(BaseModel):
     name: str
     email: str
     password: str
 
 
+# Request model for user sign-in
 class SignIn(BaseModel):
     email: str
     password: str
 
 
-def get_connection(retries=10, delay=2):
+# Establish database connection with retry mechanism
+def get_db_connection(retries=10, delay=2):
     last_error = None
 
     for attempt in range(retries):
         try:
             return psycopg2.connect(
-                host=DB_HOST,
-                database=DB_NAME,
-                user=DB_USER,
-                password=DB_PASSWORD
+                host=APP_DB_HOST,
+                database=APP_DB_NAME,
+                user=APP_DB_USER,
+                password=APP_DB_PASSWORD
             )
         except psycopg2.OperationalError as error:
             last_error = error
@@ -44,8 +50,9 @@ def get_connection(retries=10, delay=2):
     raise last_error
 
 
-def init_db():
-    conn = get_connection()
+# Initialize database schema if it does not exist
+def initialize_database():
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute("""
@@ -62,23 +69,26 @@ def init_db():
     conn.close()
 
 
-@app.on_event("startup")
-def startup():
-    init_db()
+# Run database initialization when the application starts
+@fastapi_app.on_event("startup")
+def on_startup():
+    initialize_database()
 
 
-@app.get("/api/v1/health")
+# Health check endpoint
+@fastapi_app.get("/api/v1/health")
 def health():
     return {
         "status": "ok",
-        "served_by": INSTANCE_NAME
+        "served_by": BACKEND_INSTANCE_NAME
     }
 
 
-@app.post("/api/v1/users")
+# Create a new user
+@fastapi_app.post("/api/v1/users")
 def create_user(user: UserCreate):
     try:
-        conn = get_connection()
+        conn = get_db_connection()
         cur = conn.cursor()
 
         cur.execute(
@@ -95,16 +105,17 @@ def create_user(user: UserCreate):
         return {
             "message": "User created successfully",
             "user_id": user_id,
-            "served_by": INSTANCE_NAME
+            "served_by": BACKEND_INSTANCE_NAME
         }
 
     except psycopg2.errors.UniqueViolation:
         raise HTTPException(status_code=400, detail="Email already exists")
 
 
-@app.post("/api/v1/auth/signin")
+# Authenticate user
+@fastapi_app.post("/api/v1/auth/signin")
 def sign_in(data: SignIn):
-    conn = get_connection()
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute(
@@ -127,13 +138,14 @@ def sign_in(data: SignIn):
             "name": user[1],
             "email": user[2]
         },
-        "served_by": INSTANCE_NAME
+        "served_by": BACKEND_INSTANCE_NAME
     }
 
 
-@app.get("/api/v1/users/me")
+# Retrieve user by email
+@fastapi_app.get("/api/v1/users/me")
 def get_user(email: str):
-    conn = get_connection()
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute(
@@ -155,13 +167,14 @@ def get_user(email: str):
             "name": user[1],
             "email": user[2]
         },
-        "served_by": INSTANCE_NAME
+        "served_by": BACKEND_INSTANCE_NAME
     }
 
 
-@app.delete("/api/v1/users/me")
+# Delete user by email
+@fastapi_app.delete("/api/v1/users/me")
 def delete_user(email: str):
-    conn = get_connection()
+    conn = get_db_connection()
     cur = conn.cursor()
 
     cur.execute(
@@ -180,5 +193,5 @@ def delete_user(email: str):
 
     return {
         "message": "User deleted successfully",
-        "served_by": INSTANCE_NAME
+        "served_by": BACKEND_INSTANCE_NAME
     }
