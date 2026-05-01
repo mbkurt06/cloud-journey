@@ -1,0 +1,52 @@
+services:
+  traefik:
+    image: traefik:v3.6.2
+    container_name: traefik-routing
+    command:
+      - "--log.level=DEBUG"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=traefik-net"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /Users/mb/.docker/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - traefik-net
+
+  service1:
+    image: nginx:latest
+    container_name: service1
+    volumes:
+      - ./service1:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.service1.rule=PathPrefix(`/service1`)"
+      - "traefik.http.routers.service1.entrypoints=web"
+      - "traefik.http.services.service1.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.service1-strip.stripprefix.prefixes=/service1"
+      - "traefik.http.routers.service1.middlewares=service1-strip"
+    networks:
+      - traefik-net
+
+  service2:
+    image: nginx:latest
+    container_name: service2
+    volumes:
+      - ./service2:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.service2.rule=PathPrefix(`/service2`)"
+      - "traefik.http.routers.service2.entrypoints=web"
+      - "traefik.http.services.service2.loadbalancer.server.port=80"
+      - "traefik.http.middlewares.service2-strip.stripprefix.prefixes=/service2"
+      - "traefik.http.routers.service2.middlewares=service2-strip"
+    networks:
+      - traefik-net
+
+networks:
+  traefik-net:
+    name: traefik-net
