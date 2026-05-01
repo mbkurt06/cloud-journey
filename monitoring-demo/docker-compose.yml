@@ -1,0 +1,71 @@
+
+services:
+  # Nginx - demo web server
+  monitoringdemo_nginx_service:
+    image: nginx:latest
+    container_name: monitoringdemo-nginx-service
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/default.conf:/etc/nginx/conf.d/default.conf
+    networks:
+      - monitoringdemo-network
+
+  # Nginx Prometheus Exporter
+  monitoringdemo_nginx_exporter:
+    image: nginx/nginx-prometheus-exporter:latest
+    container_name: monitoringdemo-nginx-exporter
+    command:
+      - "-nginx.scrape-uri=http://monitoringdemo_nginx_service/status"
+    ports:
+      - "9113:9113"
+    depends_on:
+      - monitoringdemo_nginx_service
+    networks:
+      - monitoringdemo-network
+
+  # Prometheus - metrics collector
+  monitoringdemo_prometheus:
+    image: prom/prometheus:latest
+    container_name: monitoringdemo-prometheus
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+    networks:
+      - monitoringdemo-network
+
+  # Grafana - visualization
+  monitoringdemo_grafana:
+    image: grafana/grafana:latest
+    container_name: monitoringdemo-grafana
+    ports:
+      - "3000:3000"
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - monitoringdemo-network
+
+  # cAdvisor - container metrics
+  monitoringdemo_cadvisor:
+    image: gcr.io/cadvisor/cadvisor:latest
+    container_name: monitoringdemo-cadvisor
+    ports:
+      - "8081:8080"
+    volumes:
+      - /:/rootfs:ro
+      - /var/run:/var/run:ro
+      - /sys:/sys:ro
+      - /var/lib/docker:/var/lib/docker:ro
+      - /dev/disk:/dev/disk:ro
+    privileged: true
+    devices:
+      - /dev/kmsg
+    networks:
+      - monitoringdemo-network
+
+networks:
+  monitoringdemo-network:
+
+volumes:
+  grafana-data:
