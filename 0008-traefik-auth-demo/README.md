@@ -51,6 +51,7 @@ sequenceDiagram
 
 ## Project Structure
 
+```bash
 0008-traefik-auth-demo/
 ├── docker-compose.yml
 ├── frontend/
@@ -59,6 +60,7 @@ sequenceDiagram
     ├── Dockerfile
     ├── requirements.txt
     └── app.py
+```
 
 ---
 
