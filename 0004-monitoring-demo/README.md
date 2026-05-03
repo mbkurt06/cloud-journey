@@ -31,13 +31,17 @@ docker compose up -d --build
 
 ## Access
 
-Grafana:
+Grafana:  
+http://localhost:3000  
 
-http://localhost:3000
+Prometheus:  
+http://localhost:9090  
 
-Prometheus:
+---
 
-http://localhost:9090
+## Dashboard
+
+![Monitoring Dashboard](images/grafana-dashboard.png)
 
 ---
 
