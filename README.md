@@ -101,36 +101,4 @@ Each project is intentionally simple but designed to reflect real-world concepts
 
 ## Conclusion
 
-This repository represents a structured path toward becoming a Cloud / DevOps Engineer with strong security fundamentals through hands-on experience.  -H "Content-Type: application/json" \
-  -d '{"username":"admin","password":"admin123"}'
-```
-
-Protected:
-
-```bash
-curl http://api.auth.localhost/protected \
-  -H "Authorization: Bearer <TOKEN>"
-```
-
----
-
-## What I Learned
-
-- JWT authentication flow
-- Stateless auth
-- API protection
-- Reverse proxy routing with Traefik
-
----
-
-## Why It Matters
-
-Authentication is a core part of modern applications.
-
-In real-world systems, this is usually handled by external identity providers such as Keycloak or Auth0.
-
----
-
-## Note
-
-Learning project – not production-ready.
+This repository represents a structured path toward becoming a Cloud / DevOps Engineer with strong security fundamentals through hands-on experience.
