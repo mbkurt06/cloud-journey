@@ -1,0 +1,52 @@
+services:
+  traefik:
+    image: traefik:v3.6.2
+    container_name: httpsdemo-traefik
+    command:
+      - "--log.level=INFO"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=httpsdemo-net"
+      - "--entrypoints.web.address=:80"
+      - "--entrypoints.websecure.address=:443"
+      - "--entrypoints.web.http.redirections.entrypoint.to=websecure"
+      - "--entrypoints.web.http.redirections.entrypoint.scheme=https"
+    ports:
+      - "80:80"
+      - "443:443"
+      - "8080:8080"
+    volumes:
+      - /Users/mb/.docker/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - httpsdemo-net
+
+  frontend:
+    image: nginx:latest
+    container_name: httpsdemo-frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`secure.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=websecure"
+      - "traefik.http.routers.frontend.tls=true"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    networks:
+      - httpsdemo-net
+
+  backend_api:
+    build: ./backend
+    container_name: httpsdemo-backend-api
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-api.rule=Host(`api.secure.localhost`)"
+      - "traefik.http.routers.backend-api.entrypoints=websecure"
+      - "traefik.http.routers.backend-api.tls=true"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=8000"
+    networks:
+      - httpsdemo-net
+
+networks:
+  httpsdemo-net:
+    name: httpsdemo-net
