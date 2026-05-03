@@ -62,6 +62,14 @@ curl http://api.auth.localhost/protected \
 
 ---
 
+## Why It Matters
+
+Authentication is a core part of modern applications.
+
+In real-world systems, this is usually handled by external identity providers such as Keycloak or Auth0.
+
+---
+
 ## Note
 
 Learning project – not production-ready.

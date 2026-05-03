@@ -33,15 +33,11 @@ docker compose up -d --build
 
 Grafana:
 
-```text
 http://localhost:3000
-```
 
 Prometheus:
 
-```text
 http://localhost:9090
-```
 
 ---
 
@@ -51,6 +47,12 @@ http://localhost:9090
 - Metrics collection
 - Monitoring system setup
 - Visualization with dashboards
+
+---
+
+## Why It Matters
+
+Monitoring is critical in production systems to detect failures and understand system behavior.
 
 ---
 
