@@ -1,0 +1,49 @@
+services:
+  traefik:
+    image: traefik:v3.6.2
+    container_name: authdemo-traefik
+    command:
+      - "--log.level=INFO"
+      - "--api.insecure=true"
+      - "--providers.docker=true"
+      - "--providers.docker.exposedbydefault=false"
+      - "--providers.docker.network=authdemo-net"
+      - "--entrypoints.web.address=:80"
+    ports:
+      - "80:80"
+      - "8080:8080"
+    volumes:
+      - /Users/mb/.docker/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - authdemo-net
+
+  frontend:
+    image: nginx:latest
+    container_name: authdemo-frontend
+    volumes:
+      - ./frontend:/usr/share/nginx/html:ro
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.frontend.rule=Host(`auth.localhost`)"
+      - "traefik.http.routers.frontend.entrypoints=web"
+      - "traefik.http.services.frontend.loadbalancer.server.port=80"
+    networks:
+      - authdemo-net
+
+  backend_api:
+    build: ./backend
+    container_name: authdemo-backend-api
+    environment:
+      - AUTHDEMO_SERVICE_NAME=auth-backend-api
+      - AUTHDEMO_JWT_SECRET=demo-secret-key
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.backend-api.rule=Host(`api.auth.localhost`)"
+      - "traefik.http.routers.backend-api.entrypoints=web"
+      - "traefik.http.services.backend-api.loadbalancer.server.port=8000"
+    networks:
+      - authdemo-net
+
+networks:
+  authdemo-net:
+    name: authdemo-net
