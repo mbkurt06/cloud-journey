@@ -1,102 +1,75 @@
-# Cloud Journey
+# Traefik Auth Demo
 
 ## Purpose
 
-This repository documents my structured journey into Cloud, DevOps, and Infrastructure Engineering.
-
-The goal is to build real, hands-on projects step by step instead of only studying theory.
+JWT-based authentication and authorization with Traefik, FastAPI, and a simple frontend.
 
 ---
 
-## Approach
+## Architecture
 
-- Learn by building real projects
-- Focus on production-like setups
-- Keep everything simple but structured
-- Progress incrementally (project by project)
+Browser → Traefik → Frontend / Backend
+
+Flow:
+
+User → Login → JWT → Protected API
 
 ---
 
-## Project List
+## Features
 
-### 0001 – Docker Basics
-Introduction to containers, images, and basic commands.
-
-### 0002 – Reverse Proxy
-Understanding how traffic flows through a reverse proxy.
-
-### 0003 – Traefik Routing
-- Path-based routing
-- Host-based routing
-- Dynamic service discovery
-
-### 0004 – HTTPS with Traefik
-- TLS termination
-- HTTPS entrypoints
-- HTTP → HTTPS redirect
-
-### 0005 – Monitoring (Prometheus & Grafana)
-- Metrics collection
-- Visualization
-- Service observability
-
-### 0006 – Scaling & Load Balancing
-- Multiple backend instances
-- Load distribution
-- Container scaling
-
-### 0007 – Traefik Advanced Routing
-- Middlewares
-- Routing rules
-- Service abstraction
-
-### 0008 – Authentication (JWT)
-- Login flow
+- Traefik reverse proxy routing
+- FastAPI backend
 - JWT token generation
-- Protected API endpoints
-- Authorization with Bearer tokens
+- Protected API endpoint
+- Bearer token authentication
 
 ---
 
-## Technologies Used
+## Run
 
-- Docker / Docker Compose
-- Traefik
-- Nginx
-- FastAPI
-- Prometheus
-- Grafana
+```bash
+docker compose up -d --build
+```
 
 ---
 
-## What I’m Learning
+## Test
 
-- Networking fundamentals
-- Reverse proxy and traffic routing
-- Containerization
-- API design
-- Authentication and security basics
-- Observability and monitoring
+Login:
 
----
+```bash
+curl -X POST http://api.auth.localhost/login \
+  -H "Content-Type: application/json" \
+  -d '{"username":"admin","password":"admin123"}'
+```
 
-## Next Steps
+Protected:
 
-- External authentication providers (Keycloak)
-- Rate limiting and API protection
-- CI/CD pipelines
-- Kubernetes
-
----
-
-## Notes
-
-This repository is focused on learning and experimentation.
-
-Each project is intentionally simple but designed to reflect real-world concepts.
+```bash
+curl http://api.auth.localhost/protected \
+  -H "Authorization: Bearer <TOKEN>"
+```
 
 ---
 
-## Conclusion
+## What I Learned
 
-This repository represents a structured path toward becoming a Cloud / DevOps Engineer through hands-on practice.
+- JWT authentication flow
+- Stateless auth
+- API protection
+- Reverse proxy routing with Traefik
+
+---
+
+## Why It Matters
+
+Authentication is a core part of modern applications.
+
+In real-world systems, this is usually handled by external identity providers such as Keycloak or Auth0.
+
+---
+
+## Note
+
+Learning project – not production-ready.
