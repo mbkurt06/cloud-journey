@@ -37,9 +37,7 @@ curl -I http://secure.localhost
 
 Expected:
 
-```text
 308 Permanent Redirect → HTTPS
-```
 
 ---
 
@@ -48,6 +46,12 @@ Expected:
 - TLS basics
 - HTTPS setup with Traefik
 - Secure traffic routing
+
+---
+
+## Why It Matters
+
+HTTPS ensures secure communication and is mandatory for production systems.
 
 ---
 
