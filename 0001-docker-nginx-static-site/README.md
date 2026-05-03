@@ -1,87 +1,48 @@
-# Cloud Journey 🚀
+# Docker Nginx Static Site
 
-## Project Overview
+## Purpose
 
-This project demonstrates how to run a static website using Nginx inside a Docker container.
-It covers both development and production approaches using Docker and Docker Compose.
+Demonstrates how to serve a static website using Nginx inside a Docker container.
 
 ---
 
-## What I Practiced
+## Architecture
 
-* Running containers with Docker (`docker run`, `docker ps`, `docker stop`)
-* Building custom images using a Dockerfile
-* Understanding the difference between image and container
-* Port mapping (host → container)
-* Using bind mounts for live updates (development)
-* Managing services with Docker Compose
-* Difference between development and production environments
+Browser → Nginx container → Static HTML files
 
 ---
 
 ## Project Structure
 
-```
-cloud-journey/
-├── Dockerfile
-├── docker-compose.devyml
-├── docker-compose.prod.yml
+0001-docker-nginx-static-site/
+├── docker-compose.yml
+├── README.md
 └── nginx-site/
     └── index.html
-```
 
 ---
 
-## How to Run
+## Run
 
-### 🔹 Production (using Dockerfile)
+docker compose up -d
 
-Build and run the container:
+---
 
-```
-docker compose -f docker-compose.prod.yml up -d --build
-```
+## Access
 
-Access:
 http://localhost:8080
 
 ---
 
-### 🔹 Development (live updates with volume)
+## What I Learned
 
-Run with bind mount:
-
-```
-docker compose -f docker-compose.dev.yml up -d
-```
-
-Access:
-http://localhost:8081
-
-Any change in `index.html` is reflected instantly without rebuilding.
+- Basic Docker Compose usage
+- Running Nginx in a container
+- Serving static files with bind mounts
+- Mapping host ports to container ports
 
 ---
 
-## Key Concepts
+## Note
 
-* **Image vs Container**
-
-  * Image is a static snapshot
-  * Container is a running instance
-
-* **Bind Mount vs COPY**
-
-  * Bind mount → live updates (development)
-  * COPY → fixed content inside image (production)
-
-* **Docker Compose**
-
-  * Simplifies running multi-container or repeatable setups
-  * Replaces manual `docker build` and `docker run`
-
----
-
-## Notes
-
-This project is part of my cloud and DevOps learning journey.
-The goal is to understand infrastructure, containerization, and deployment concepts step by step.
+Learning project – not production-ready.
