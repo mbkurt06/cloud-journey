@@ -31,17 +31,17 @@ docker compose up -d --build
 
 ## Access
 
-Grafana:
+Grafana:  
+http://localhost:3000  
 
-```text
-http://localhost:3000
-```
+Prometheus:  
+http://localhost:9090  
 
-Prometheus:
+---
 
-```text
-http://localhost:9090
-```
+## Dashboard
+
+![Monitoring Dashboard](images/grafana-dashboard.png)
 
 ---
 
@@ -51,6 +51,12 @@ http://localhost:9090
 - Metrics collection
 - Monitoring system setup
 - Visualization with dashboards
+
+---
+
+## Why It Matters
+
+Monitoring is critical in production systems to detect failures and understand system behavior.
 
 ---
 
